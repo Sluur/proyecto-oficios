@@ -6,7 +6,7 @@ from .models import Resena
 class UsuarioResumenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = ('id', 'username', 'first_name', 'foto', 'rol', 'verificado')
+        fields = ('id', 'username', 'first_name', 'last_name', 'foto', 'rol', 'verificado')
 
 
 class ResenaSerializer(serializers.ModelSerializer):

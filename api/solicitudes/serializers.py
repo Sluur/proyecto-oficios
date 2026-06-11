@@ -8,7 +8,7 @@ from .models import Propuesta, Solicitud
 class UsuarioResumenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = ('id', 'username', 'first_name', 'foto', 'rol', 'verificado')
+        fields = ('id', 'username', 'first_name', 'last_name', 'foto', 'telefono', 'rol', 'verificado')
 
 
 class SolicitudSerializer(serializers.ModelSerializer):
@@ -60,12 +60,15 @@ class SolicitudCreateSerializer(serializers.ModelSerializer):
 class PropuestaSerializer(serializers.ModelSerializer):
     trabajador = UsuarioResumenSerializer(read_only=True)
     solicitud_titulo = serializers.CharField(source='solicitud.titulo', read_only=True)
+    solicitud_cliente_telefono = serializers.CharField(
+        source='solicitud.cliente.telefono', read_only=True
+    )
 
     class Meta:
         model = Propuesta
         fields = (
-            'id', 'solicitud', 'solicitud_titulo', 'trabajador',
-            'precio_estimado', 'mensaje', 'estado', 'created_at',
+            'id', 'solicitud', 'solicitud_titulo', 'solicitud_cliente_telefono',
+            'trabajador', 'precio_estimado', 'mensaje', 'estado', 'created_at',
         )
         read_only_fields = ('estado', 'created_at')
 

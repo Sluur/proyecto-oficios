@@ -1,15 +1,34 @@
-from django.contrib.auth.password_validation import validate_password
+import random
+import re
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from oficios.serializers import OficioCategoriaSerializer
 from .models import Usuario
 
 
+class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        del self.fields[self.username_field]
+        self.fields['email'] = serializers.EmailField()
+
+    def validate(self, attrs):
+        email = attrs.pop('email', '').strip().lower()
+        try:
+            user = Usuario.objects.get(email__iexact=email)
+        except Usuario.DoesNotExist:
+            raise serializers.ValidationError(
+                {'email': 'No existe una cuenta con este email.'}
+            )
+        attrs[self.username_field] = user.username
+        return super().validate(attrs)
+
+
 class RegistroSerializer(serializers.ModelSerializer):
     nombre = serializers.CharField(write_only=True, required=False, allow_blank=True)
-    password = serializers.CharField(
-        write_only=True, required=True, validators=[validate_password]
-    )
+    password = serializers.CharField(write_only=True, required=True)
+    username = serializers.CharField(required=False, allow_blank=True, max_length=150)
 
     class Meta:
         model = Usuario
@@ -28,11 +47,26 @@ class RegistroSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         nombre = validated_data.pop('nombre', '')
         password = validated_data.pop('password')
+        hint = validated_data.pop('username', '') or ''
+        if not hint:
+            hint = validated_data['email'].split('@')[0]
+        validated_data['username'] = self._unique_username(hint)
         user = Usuario(**validated_data)
         user.first_name = nombre
         user.set_password(password)
         user.save()
         return user
+
+    @staticmethod
+    def _unique_username(hint):
+        base = re.sub(r'[^\w]', '_', hint).lower()[:25]
+        if not Usuario.objects.filter(username=base).exists():
+            return base
+        for _ in range(20):
+            candidate = f'{base}{random.randint(1, 9999)}'
+            if not Usuario.objects.filter(username=candidate).exists():
+                return candidate
+        return f'{base}{random.randint(10000, 99999)}'
 
 
 class UsuarioSerializer(serializers.ModelSerializer):

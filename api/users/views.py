@@ -6,8 +6,18 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import Usuario
-from .serializers import RegistroSerializer, TrabajadorSerializer, UsuarioSerializer
+from .serializers import (
+    EmailTokenObtainPairSerializer,
+    RegistroSerializer,
+    TrabajadorSerializer,
+    UsuarioSerializer,
+)
+
+
+class EmailTokenObtainPairView(TokenObtainPairView):
+    serializer_class = EmailTokenObtainPairSerializer
 
 
 class RegistroView(APIView):

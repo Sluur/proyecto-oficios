@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../blocs/auth/auth_bloc.dart';
+import '../../theme/app_theme.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -9,139 +12,203 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nombreController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  
-  String _selectedRol = 'cliente'; // Valor por defecto
+  final _nombreController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  String _selectedRol = 'cliente';
   bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
 
   @override
   void dispose() {
     _nombreController.dispose();
-    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
   void _submitRegister() {
     if (_formKey.currentState!.validate()) {
-      // Aquí el BLoC enviará los datos a POST /api/v1/auth/register/
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Creando cuenta...')),
-      );
+      context.read<AuthBloc>().add(
+            RegisterRequested(
+              email: _emailController.text.trim(),
+              password: _passwordController.text,
+              nombre: _nombreController.text.trim(),
+              rol: _selectedRol,
+            ),
+          );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final textTheme = Theme.of(context).textTheme;
 
-    return Scaffold(
-      backgroundColor: theme.colorScheme.background,
-      appBar: AppBar(
-        title: const Text('Crear Cuenta'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: SafeArea(
-        child: Center(
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is Authenticated) {
+          Navigator.pushReplacementNamed(context, '/home');
+        } else if (state is AuthError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: AppTheme.errorColor,
+            ),
+          );
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppTheme.background,
+        appBar: AppBar(
+          title: const Text('Crear cuenta'),
+          backgroundColor: AppTheme.background,
+        ),
+        body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 8),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Campo Nombre Real
+                  Text(
+                    'Completá tus datos',
+                    style: textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textTitle,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Tu usuario se generará automáticamente',
+                    style: textTheme.bodySmall?.copyWith(
+                      color: AppTheme.textSubtitle,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+
+                  // Nombre completo
                   TextFormField(
                     controller: _nombreController,
                     textInputAction: TextInputAction.next,
-                    decoration: InputDecoration(
+                    textCapitalization: TextCapitalization.words,
+                    decoration: const InputDecoration(
                       labelText: 'Nombre completo',
-                      prefixIcon: const Icon(Icons.person_outline),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      prefixIcon: Icon(Icons.person_outline),
                     ),
-                    validator: (value) => value!.isEmpty ? 'Ingresa tu nombre' : null,
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Ingresá tu nombre' : null,
                   ),
                   const SizedBox(height: 16),
 
-                  // Campo Username
-                  TextFormField(
-                    controller: _usernameController,
-                    textInputAction: TextInputAction.next,
-                    decoration: InputDecoration(
-                      labelText: 'Nombre de usuario (Username)',
-                      prefixIcon: const Icon(Icons.alternate_email),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    validator: (value) => value!.isEmpty ? 'Ingresa un nombre de usuario' : null,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Campo Email
+                  // Email
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Correo electrónico',
-                      prefixIcon: const Icon(Icons.email_outlined),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      prefixIcon: Icon(Icons.email_outlined),
                     ),
-                    validator: (value) => value!.contains('@') ? null : 'Correo inválido',
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Selector de Rol (Cliente / Trabajador)
-                  DropdownButtonFormField<String>(
-                    value: _selectedRol,
-                    decoration: InputDecoration(
-                      labelText: '¿Qué buscas en la app?',
-                      prefixIcon: const Icon(Icons.work_outline),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    items: const [
-                      DropdownMenuItem(value: 'cliente', child: Text('Quiero contratar servicios')),
-                      DropdownMenuItem(value: 'trabajador', child: Text('Quiero ofrecer mis servicios')),
-                    ],
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedRol = newValue!;
-                      });
+                    validator: (v) {
+                      if (v == null || v.isEmpty) return 'Ingresá tu correo';
+                      if (!v.contains('@') || !v.contains('.')) {
+                        return 'Correo inválido';
+                      }
+                      return null;
                     },
                   ),
                   const SizedBox(height: 16),
 
-                  // Campo Contraseña
+                  // Rol
+                  DropdownButtonFormField<String>(
+                    initialValue: _selectedRol,
+                    decoration: const InputDecoration(
+                      labelText: '¿Qué buscás en la app?',
+                      prefixIcon: Icon(Icons.work_outline),
+                    ),
+                    items: const [
+                      DropdownMenuItem(
+                          value: 'cliente',
+                          child: Text('Quiero contratar servicios')),
+                      DropdownMenuItem(
+                          value: 'trabajador',
+                          child: Text('Quiero ofrecer mis servicios')),
+                    ],
+                    onChanged: (v) =>
+                        setState(() => _selectedRol = v!),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Contraseña
                   TextFormField(
                     controller: _passwordController,
                     obscureText: !_isPasswordVisible,
-                    textInputAction: TextInputAction.done,
+                    textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
                       labelText: 'Contraseña',
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
-                        icon: Icon(_isPasswordVisible ? Icons.visibility_off : Icons.visibility),
-                        onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                        icon: Icon(_isPasswordVisible
+                            ? Icons.visibility_off
+                            : Icons.visibility),
+                        onPressed: () => setState(
+                            () => _isPasswordVisible = !_isPasswordVisible),
                       ),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    validator: (value) => value!.length < 6 ? 'Mínimo 6 caracteres' : null,
+                    validator: (v) => (v == null || v.length < 8)
+                        ? 'Mínimo 8 caracteres'
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Confirmar contraseña
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    obscureText: !_isConfirmPasswordVisible,
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) => _submitRegister(),
+                    decoration: InputDecoration(
+                      labelText: 'Confirmar contraseña',
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      suffixIcon: IconButton(
+                        icon: Icon(_isConfirmPasswordVisible
+                            ? Icons.visibility_off
+                            : Icons.visibility),
+                        onPressed: () => setState(() =>
+                            _isConfirmPasswordVisible =
+                                !_isConfirmPasswordVisible),
+                      ),
+                    ),
+                    validator: (v) {
+                      if (v == null || v.isEmpty) return 'Confirmá tu contraseña';
+                      if (v != _passwordController.text) {
+                        return 'Las contraseñas no coinciden';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 32),
 
-                  // Botón Registrarse
-                  ElevatedButton(
-                    onPressed: _submitRegister,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: const Text('Registrarse', style: TextStyle(fontSize: 16)),
+                  // Botón
+                  BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, state) {
+                      if (state is AuthLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      return SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _submitRegister,
+                          child: const Text('Crear cuenta'),
+                        ),
+                      );
+                    },
                   ),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
