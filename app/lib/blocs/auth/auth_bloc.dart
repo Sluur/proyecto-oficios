@@ -61,7 +61,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await _authService.register(
         email: event.email,
         password: event.password,
-        nombre: event.nombre,
+        firstName: event.firstName,
+        lastName: event.lastName,
+        telefono: event.telefono,
         rol: event.rol,
       );
       final usuario = await _authService.getMe();
@@ -133,7 +135,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       'email': 'Email',
       'password': 'Contraseña',
       'rol': 'Rol',
-      'nombre': 'Nombre',
+      'first_name': 'Nombre',
+      'last_name': 'Apellido',
+      'telefono': 'Teléfono',
       'non_field_errors': '',
     };
     return labels[key] ?? key;

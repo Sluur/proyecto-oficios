@@ -26,13 +26,15 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 
 class RegistroSerializer(serializers.ModelSerializer):
-    nombre = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    first_name = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    last_name = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    telefono = serializers.CharField(write_only=True, required=False, allow_blank=True)
     password = serializers.CharField(write_only=True, required=True)
     username = serializers.CharField(required=False, allow_blank=True, max_length=150)
 
     class Meta:
         model = Usuario
-        fields = ('username', 'email', 'password', 'rol', 'nombre')
+        fields = ('username', 'email', 'password', 'rol', 'first_name', 'last_name', 'telefono')
 
     def validate_email(self, value):
         if Usuario.objects.filter(email__iexact=value).exists():
@@ -45,14 +47,19 @@ class RegistroSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        nombre = validated_data.pop('nombre', '')
+        first_name = validated_data.pop('first_name', '')
+        last_name = validated_data.pop('last_name', '')
+        telefono = validated_data.pop('telefono', '')
         password = validated_data.pop('password')
         hint = validated_data.pop('username', '') or ''
         if not hint:
             hint = validated_data['email'].split('@')[0]
         validated_data['username'] = self._unique_username(hint)
         user = Usuario(**validated_data)
-        user.first_name = nombre
+        user.first_name = first_name
+        user.last_name = last_name
+        if telefono:
+            user.telefono = telefono
         user.set_password(password)
         user.save()
         return user

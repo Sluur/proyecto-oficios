@@ -12,7 +12,9 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nombreController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _telefonoController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -23,7 +25,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   void dispose() {
-    _nombreController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _telefonoController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -36,7 +40,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             RegisterRequested(
               email: _emailController.text.trim(),
               password: _passwordController.text,
-              nombre: _nombreController.text.trim(),
+              firstName: _firstNameController.text.trim(),
+              lastName: _lastNameController.text.trim(),
+              telefono: _telefonoController.text.trim(),
               rol: _selectedRol,
             ),
           );
@@ -90,17 +96,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 28),
 
-                  // Nombre completo
+                  // Nombre
                   TextFormField(
-                    controller: _nombreController,
+                    controller: _firstNameController,
                     textInputAction: TextInputAction.next,
                     textCapitalization: TextCapitalization.words,
                     decoration: const InputDecoration(
-                      labelText: 'Nombre completo',
+                      labelText: 'Nombre',
                       prefixIcon: Icon(Icons.person_outline),
                     ),
                     validator: (v) =>
                         (v == null || v.isEmpty) ? 'Ingresá tu nombre' : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Apellido
+                  TextFormField(
+                    controller: _lastNameController,
+                    textInputAction: TextInputAction.next,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: const InputDecoration(
+                      labelText: 'Apellido',
+                      prefixIcon: Icon(Icons.person_outline),
+                    ),
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Ingresá tu apellido' : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Teléfono
+                  TextFormField(
+                    controller: _telefonoController,
+                    keyboardType: TextInputType.phone,
+                    textInputAction: TextInputAction.next,
+                    decoration: const InputDecoration(
+                      labelText: 'Teléfono',
+                      hintText: '+54 9 ...',
+                      prefixIcon: Icon(Icons.phone_outlined),
+                    ),
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Ingresá tu teléfono' : null,
                   ),
                   const SizedBox(height: 16),
 

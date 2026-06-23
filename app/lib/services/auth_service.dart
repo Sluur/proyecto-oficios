@@ -10,14 +10,18 @@ class AuthService {
   Future<void> register({
     required String email,
     required String password,
-    required String nombre,
+    required String firstName,
+    required String lastName,
+    required String telefono,
     required String rol,
   }) async {
     final response = await _dio.post('/auth/register/', data: {
       'username': _usernameFromEmail(email),
       'email': email,
       'password': password,
-      'nombre': nombre,
+      'first_name': firstName,
+      'last_name': lastName,
+      'telefono': telefono,
       'rol': rol,
     });
     // El endpoint de registro ya devuelve access + refresh directamente
