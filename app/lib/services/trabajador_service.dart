@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../models/trabajador.dart';
 import 'api_service.dart';
 
@@ -27,7 +28,14 @@ class TrabajadorService {
   }
 
   Future<Trabajador> getTrabajador(int id) async {
-    final response = await _dio.get('/trabajadores/$id/');
-    return Trabajador.fromJson(response.data as Map<String, dynamic>);
+    try {
+      final response = await _dio.get('/trabajadores/$id/');
+      debugPrint(
+          'GET /trabajadores/$id/ -> ${response.statusCode}: ${response.data}');
+      return Trabajador.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      debugPrint('Error en GET /trabajadores/$id/: $e');
+      rethrow;
+    }
   }
 }

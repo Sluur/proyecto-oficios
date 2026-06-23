@@ -1,7 +1,8 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../blocs/auth/auth_bloc.dart';
 import '../../models/categoria.dart';
 import '../../models/usuario.dart';
 import '../../services/categoria_service.dart';
@@ -31,7 +32,8 @@ class _OnboardingTrabajadorScreenState
 
   List<Categoria> _categorias = [];
   final Set<int> _selectedIds = {};
-  File? _fotoFile;
+  XFile? _pickedFoto;
+  Uint8List? _fotoBytes;
   bool _loadingCats = true;
   bool _saving = false;
 
@@ -70,7 +72,11 @@ class _OnboardingTrabajadorScreenState
       imageQuality: 80,
     );
     if (picked != null && mounted) {
-      setState(() => _fotoFile = File(picked.path));
+      final bytes = await picked.readAsBytes();
+      setState(() {
+        _pickedFoto = picked;
+        _fotoBytes = bytes;
+      });
     }
   }
 
@@ -81,22 +87,23 @@ class _OnboardingTrabajadorScreenState
       );
       return;
     }
-
     setState(() => _saving = true);
-
     try {
-      await PerfilService().updatePerfil(
-        telefono: _telefonoController.text.trim(),
-        fotoPath: _fotoFile?.path,
+      if (_pickedFoto != null) {
+        await PerfilService().updateFoto(_pickedFoto!);
+      }
+      final updatedUser = await PerfilService().updatePerfil(
+        telefono: _telefonoController.text.trim().isNotEmpty
+            ? _telefonoController.text.trim()
+            : null,
         oficiosIds: _selectedIds.toList(),
       );
-    } catch (_) {
-      // El backend aún no soporta PATCH /auth/me/ — continuar igual
+      if (mounted) {
+        context.read<AuthBloc>().add(UserUpdated(updatedUser));
+      }
+    } catch (e) {
+      debugPrint('Error guardando onboarding: $e');
     }
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('onboarding_done_${widget.usuario.id}', true);
-
     if (mounted) {
       setState(() => _saving = false);
       widget.onCompleted();
@@ -160,10 +167,10 @@ class _OnboardingTrabajadorScreenState
                           radius: 48,
                           backgroundColor:
                               AppTheme.primary.withValues(alpha: 0.1),
-                          backgroundImage: _fotoFile != null
-                              ? FileImage(_fotoFile!)
+                          backgroundImage: _fotoBytes != null
+                              ? MemoryImage(_fotoBytes!)
                               : null,
-                          child: _fotoFile == null
+                          child: _fotoBytes == null
                               ? const Icon(Icons.add_a_photo_outlined,
                                   size: 32, color: AppTheme.primary)
                               : null,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../models/propuesta.dart';
@@ -177,14 +179,6 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
     }
   }
 
-  Future<void> _llamar(String? telefono) async {
-    if (telefono == null || telefono.isEmpty) return;
-    final uri = Uri.parse('tel:$telefono');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    }
-  }
-
   Color _colorEstado(String estado) {
     switch (estado) {
       case 'abierta':
@@ -201,6 +195,11 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+
+    final authState = context.read<AuthBloc>().state;
+    final miNombre = authState is Authenticated
+        ? authState.usuario.nombreCompleto
+        : '';
 
     return Scaffold(
       appBar: AppBar(title: const Text('Detalle de la solicitud')),
@@ -320,6 +319,12 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
               ),
             ],
 
+            // Mapa de ubicación
+            if (_solicitud.latitud != null && _solicitud.longitud != null) ...[
+              const SizedBox(height: 20),
+              _buildMapa(),
+            ],
+
             // Datos de contacto cuando hay trabajo en progreso o cerrado
             if (_solicitud.estado != 'abierta' &&
                 _solicitud.trabajadorAceptadoId != null) ...[
@@ -332,7 +337,11 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                 telefono: _esClienteDueno
                     ? _solicitud.trabajadorAceptadoTelefono
                     : _solicitud.clienteTelefono,
-                onLlamar: _llamar,
+                mensajeWa: _esClienteDueno
+                    ? 'Hola, te contacto por la solicitud "${_solicitud.titulo}" en Chamba.'
+                    : 'Hola, soy $miNombre de Chamba. '
+                        'Aceptaste mi propuesta para: ${_solicitud.titulo}. '
+                        '¿Cuándo coordinamos?',
               ),
             ],
 
@@ -366,6 +375,44 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
         ),
       ),
       bottomNavigationBar: _buildBottomBar(),
+    );
+  }
+
+  Widget _buildMapa() {
+    final lat = _solicitud.latitud!;
+    final lon = _solicitud.longitud!;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: SizedBox(
+        height: 180,
+        child: AbsorbPointer(
+          child: FlutterMap(
+            options: MapOptions(
+              initialCenter: LatLng(lat, lon),
+              initialZoom: 14.0,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate:
+                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.chamba',
+              ),
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: LatLng(lat, lon),
+                    child: const Icon(
+                      Icons.location_pin,
+                      color: Colors.red,
+                      size: 40,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -424,52 +471,102 @@ class _ContactoCard extends StatelessWidget {
   final String titulo;
   final String nombre;
   final String? telefono;
-  final ValueChanged<String?> onLlamar;
+  final String mensajeWa;
 
   const _ContactoCard({
     required this.titulo,
     required this.nombre,
     required this.telefono,
-    required this.onLlamar,
+    required this.mensajeWa,
   });
+
+  String? _waUrl() {
+    if (telefono == null || telefono!.isEmpty) return null;
+    var num = telefono!.replaceAll(RegExp(r'[^\d]'), '');
+    if (num.isEmpty) return null;
+    if (!num.startsWith('549')) {
+      if (num.startsWith('54')) {
+        num = '549${num.substring(2)}';
+      } else {
+        if (num.startsWith('0')) num = num.substring(1);
+        num = '549$num';
+      }
+    }
+    return 'https://wa.me/$num?text=${Uri.encodeComponent(mensajeWa)}';
+  }
+
+  Future<void> _launch(String url) async {
+    try {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } catch (_) {}
+  }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.surfaceCard,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppTheme.border),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Text(titulo,
+              style: textTheme.labelSmall
+                  ?.copyWith(color: AppTheme.textSubtitle)),
+          const SizedBox(height: 4),
+          Text(nombre.isNotEmpty ? nombre : '—',
+              style: textTheme.bodyMedium
+                  ?.copyWith(fontWeight: FontWeight.w700)),
+          if (telefono != null && telefono!.isNotEmpty) ...[
+            const SizedBox(height: 2),
+            Row(
               children: [
-                Text(titulo,
-                    style: textTheme.labelSmall
+                const Icon(Icons.phone_outlined,
+                    size: 13, color: AppTheme.textSubtitle),
+                const SizedBox(width: 4),
+                Text(telefono!,
+                    style: textTheme.bodySmall
                         ?.copyWith(color: AppTheme.textSubtitle)),
-                const SizedBox(height: 2),
-                Text(nombre.isNotEmpty ? nombre : '—',
-                    style: textTheme.bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.w700)),
-                if (telefono != null) ...[
-                  const SizedBox(height: 2),
-                  Text(telefono!,
-                      style: textTheme.bodySmall
-                          ?.copyWith(color: AppTheme.textSubtitle)),
-                ],
               ],
             ),
-          ),
-          if (telefono != null)
-            IconButton(
-              onPressed: () => onLlamar(telefono),
-              icon: const Icon(Icons.phone, color: AppTheme.successColor),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _launch('tel:$telefono'),
+                    icon: const Icon(Icons.phone, size: 16),
+                    label: const Text('Llamar'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppTheme.successColor,
+                      side: const BorderSide(color: AppTheme.successColor),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      final url = _waUrl();
+                      if (url != null) _launch(url);
+                    },
+                    icon: const Icon(Icons.chat, size: 16),
+                    label: const Text('WhatsApp'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF25D366),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                  ),
+                ),
+              ],
             ),
+          ],
         ],
       ),
     );

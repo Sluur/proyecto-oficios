@@ -137,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
               foregroundColor: Colors.white,
               surfaceTintColor: Colors.transparent,
               title: const Text(
-                'Inicio',
+                'Chamba',
                 style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
@@ -285,22 +285,6 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                       ),
                     ),
                   ],
-
-                  // ── Trabajadores destacados ─────────────────────
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 32, 20, 14),
-                    child: _SectionHeader(title: 'Trabajadores destacados'),
-                  ),
-                  SizedBox(
-                    height: 148,
-                    child: ListView.separated(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      scrollDirection: Axis.horizontal,
-                      itemCount: 3,
-                      separatorBuilder: (context, index) => const SizedBox(width: 12),
-                      itemBuilder: (context, index) => const _TrabajadorPlaceholderCard(),
-                    ),
-                  ),
 
                   const SizedBox(height: 32),
                 ],
@@ -576,69 +560,3 @@ class _SolicitudCard extends StatelessWidget {
   }
 }
 
-class _TrabajadorPlaceholderCard extends StatelessWidget {
-  const _TrabajadorPlaceholderCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 140,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppTheme.surfaceCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.border),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: AppTheme.surface,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppTheme.border),
-            ),
-            child: const Icon(Icons.person_outline,
-                size: 26, color: AppTheme.textSubtitle),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            height: 9,
-            width: 80,
-            decoration: BoxDecoration(
-              color: AppTheme.border,
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Container(
-            height: 8,
-            width: 56,
-            decoration: BoxDecoration(
-              color: AppTheme.surface,
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: AppTheme.accent.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              'Muy pronto',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppTheme.accent,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 10,
-                  ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

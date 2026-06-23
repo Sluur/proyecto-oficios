@@ -36,3 +36,10 @@ class RegisterRequested extends AuthEvent {
 class LogoutRequested extends AuthEvent {
   const LogoutRequested();
 }
+
+class UserUpdated extends AuthEvent {
+  final Usuario usuario;
+  const UserUpdated(this.usuario);
+  @override
+  List<Object?> get props => [usuario];
+}

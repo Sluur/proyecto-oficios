@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Oficios',
+      title: 'Chamba',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       navigatorObservers: [routeObserver],

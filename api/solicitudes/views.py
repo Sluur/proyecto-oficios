@@ -119,7 +119,9 @@ class PropuestaDeSolicitudViewSet(viewsets.GenericViewSet):
                 {'detail': 'Solo el cliente dueño puede ver las propuestas.'},
                 status=status.HTTP_403_FORBIDDEN,
             )
-        qs = Propuesta.objects.filter(solicitud=solicitud).select_related('trabajador')
+        qs = Propuesta.objects.filter(solicitud=solicitud).select_related(
+            'trabajador', 'solicitud__cliente'
+        )
         return Response(PropuestaSerializer(qs, many=True).data)
 
     def create(self, request, *args, **kwargs):
@@ -152,7 +154,9 @@ class PropuestaDeSolicitudViewSet(viewsets.GenericViewSet):
 class PropuestaViewSet(viewsets.GenericViewSet):
     """Maneja /propuestas/mis/ y /propuestas/{pk}/aceptar/."""
 
-    queryset = Propuesta.objects.select_related('solicitud', 'trabajador', 'solicitud__categoria')
+    queryset = Propuesta.objects.select_related(
+        'solicitud', 'solicitud__cliente', 'trabajador', 'solicitud__categoria'
+    )
 
     def get_permissions(self):
         if self.action == 'mis':

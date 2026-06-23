@@ -71,13 +71,14 @@ class RegistroSerializer(serializers.ModelSerializer):
 
 class UsuarioSerializer(serializers.ModelSerializer):
     ubicacion = serializers.SerializerMethodField()
+    oficios_ids = serializers.SerializerMethodField()
 
     class Meta:
         model = Usuario
         fields = (
             'id', 'username', 'email', 'first_name', 'last_name',
-            'rol', 'foto', 'telefono', 'ubicacion',
-            'verificado', 'activo',
+            'rol', 'foto', 'telefono', 'bio', 'ubicacion',
+            'verificado', 'activo', 'oficios_ids',
         )
         read_only_fields = ('verificado', 'activo')
 
@@ -85,6 +86,33 @@ class UsuarioSerializer(serializers.ModelSerializer):
         if obj.ubicacion is None:
             return None
         return {'lat': obj.ubicacion.y, 'lon': obj.ubicacion.x}
+
+    def get_oficios_ids(self, obj):
+        if obj.rol == 'trabajador':
+            return list(obj.oficios.values_list('id', flat=True))
+        return []
+
+
+class PerfilUpdateSerializer(serializers.ModelSerializer):
+    oficios_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        write_only=True,
+        required=False,
+    )
+
+    class Meta:
+        model = Usuario
+        fields = ('first_name', 'last_name', 'telefono', 'bio', 'foto', 'oficios_ids')
+
+    def update(self, instance, validated_data):
+        oficios_ids = validated_data.pop('oficios_ids', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        if oficios_ids is not None and instance.rol == 'trabajador':
+            from oficios.models import OficioCategoria
+            instance.oficios.set(OficioCategoria.objects.filter(id__in=oficios_ids))
+        return instance
 
 
 class TrabajadorSerializer(serializers.ModelSerializer):

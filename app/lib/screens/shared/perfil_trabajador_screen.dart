@@ -42,7 +42,8 @@ class _PerfilTrabajadorScreenState extends State<PerfilTrabajadorScreen> {
           _loading = false;
         });
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('Error al cargar perfil del trabajador ${widget.trabajadorId}: $e');
       if (mounted) setState(() => _loading = false);
     }
   }

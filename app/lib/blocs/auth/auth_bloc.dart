@@ -17,6 +17,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoginRequested>(_onLoginRequested);
     on<RegisterRequested>(_onRegisterRequested);
     on<LogoutRequested>(_onLogoutRequested);
+    on<UserUpdated>(_onUserUpdated);
   }
 
   Future<void> _onCheckAuthStatus(
@@ -76,6 +77,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     await _authService.logout();
     emit(const Unauthenticated());
+  }
+
+  void _onUserUpdated(UserUpdated event, Emitter<AuthState> emit) {
+    emit(Authenticated(event.usuario));
   }
 
   String _errorMessage(Object e) {

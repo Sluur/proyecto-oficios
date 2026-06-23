@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models/solicitud.dart';
 import 'api_service.dart';
 
@@ -56,18 +57,20 @@ class SolicitudService {
     required int categoriaId,
     required double latitud,
     required double longitud,
-    String? fotoPath,
+    XFile? foto,
   }) async {
-    final formData = FormData.fromMap({
+    final fields = <String, dynamic>{
       'titulo': titulo,
       'descripcion': descripcion,
       'categoria': categoriaId,
       'lat': latitud,
       'lon': longitud,
-      if (fotoPath != null)
-        'foto': await MultipartFile.fromFile(fotoPath),
-    });
-    final response = await _dio.post('/solicitudes/', data: formData);
+    };
+    if (foto != null) {
+      final bytes = await foto.readAsBytes();
+      fields['foto'] = MultipartFile.fromBytes(bytes, filename: 'foto.jpg');
+    }
+    final response = await _dio.post('/solicitudes/', data: FormData.fromMap(fields));
     return Solicitud.fromJson(response.data as Map<String, dynamic>);
   }
 

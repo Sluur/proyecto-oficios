@@ -5,6 +5,7 @@ import '../../services/solicitud_service.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/time_ago.dart';
 import '../../widgets/categoria_card.dart';
+import '../cliente/create_solicitud_screen.dart';
 import '../shared/detalle_solicitud_screen.dart';
 
 class MisSolicitudesScreen extends StatefulWidget {
@@ -111,18 +112,38 @@ class _MisSolicitudesScreenState extends State<MisSolicitudesScreen>
       );
     }
     if (_solicitudes.isEmpty) {
-      return ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        children: const [
-          SizedBox(height: 120),
-          Icon(Icons.list_alt_outlined, size: 64, color: Color(0xFFCBD5E1)),
-          SizedBox(height: 16),
-          Text(
-            'Tus solicitudes aparecerán acá',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: AppTheme.textSubtitle),
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.content_paste_outlined,
+                  size: 64, color: Color(0xFFCBD5E1)),
+              const SizedBox(height: 16),
+              const Text(
+                'No publicaste solicitudes todavía',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: AppTheme.textSubtitle, fontSize: 16),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const CreateSolicitudScreen(),
+                    ),
+                  );
+                  _load();
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Crear primera solicitud'),
+              ),
+            ],
           ),
-        ],
+        ),
       );
     }
     return ListView.separated(

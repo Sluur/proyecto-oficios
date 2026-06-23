@@ -2,6 +2,7 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 from django.db.models import Avg, Count, Q
 from rest_framework import status, viewsets
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -10,6 +11,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import Usuario
 from .serializers import (
     EmailTokenObtainPairSerializer,
+    PerfilUpdateSerializer,
     RegistroSerializer,
     TrabajadorSerializer,
     UsuarioSerializer,
@@ -37,9 +39,18 @@ class RegistroView(APIView):
 
 class MeView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get(self, request):
-        return Response(UsuarioSerializer(request.user).data)
+        return Response(UsuarioSerializer(request.user, context={'request': request}).data)
+
+    def patch(self, request):
+        serializer = PerfilUpdateSerializer(
+            request.user, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response(UsuarioSerializer(user, context={'request': request}).data)
 
 
 class TrabajadorViewSet(viewsets.ReadOnlyModelViewSet):

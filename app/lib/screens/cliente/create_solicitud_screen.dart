@@ -1,12 +1,12 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:latlong2/latlong.dart';
 import '../../models/categoria.dart';
 import '../../services/categoria_service.dart';
 import '../../services/solicitud_service.dart';
 import '../../theme/app_theme.dart';
-import '../../utils/location_helper.dart';
 import '../../widgets/categoria_card.dart';
 
 class CreateSolicitudScreen extends StatefulWidget {
@@ -24,10 +24,10 @@ class _CreateSolicitudScreenState extends State<CreateSolicitudScreen> {
 
   List<Categoria> _categorias = [];
   Categoria? _categoriaSeleccionada;
-  Position? _position;
-  File? _fotoFile;
+  LatLng? _selectedLatLng;
+  XFile? _pickedFoto;
+  Uint8List? _fotoBytes;
   bool _loadingCats = true;
-  bool _loadingGps = true;
   bool _saving = false;
 
   @override
@@ -39,7 +39,6 @@ class _CreateSolicitudScreenState extends State<CreateSolicitudScreen> {
     } else {
       _loadingCats = false;
     }
-    _loadGps();
   }
 
   @override
@@ -63,37 +62,17 @@ class _CreateSolicitudScreenState extends State<CreateSolicitudScreen> {
     }
   }
 
-  Future<void> _loadGps() async {
-    // Usamos la ubicación guardada como punto de partida (instantánea) y,
-    // si el GPS responde, la reemplazamos por la posición real del usuario.
-    final ubicacion = await LocationHelper.getUbicacionGuardada();
-    if (mounted) {
-      setState(() {
-        _position = Position(
-          latitude: ubicacion.lat,
-          longitude: ubicacion.lon,
-          timestamp: DateTime.now(),
-          accuracy: 0,
-          altitude: 0,
-          altitudeAccuracy: 0,
-          heading: 0,
-          headingAccuracy: 0,
-          speed: 0,
-          speedAccuracy: 0,
-        );
-        _loadingGps = false;
-      });
-    }
-    LocationHelper.getPosition().then((pos) {
-      if (mounted) setState(() => _position = pos);
-    });
-  }
-
   Future<void> _pickFoto() async {
-    final picked = await ImagePicker()
-        .pickImage(source: ImageSource.camera, imageQuality: 80);
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
     if (picked != null && mounted) {
-      setState(() => _fotoFile = File(picked.path));
+      final bytes = await picked.readAsBytes();
+      setState(() {
+        _pickedFoto = picked;
+        _fotoBytes = bytes;
+      });
     }
   }
 
@@ -104,9 +83,9 @@ class _CreateSolicitudScreenState extends State<CreateSolicitudScreen> {
           const SnackBar(content: Text('Seleccioná una categoría')));
       return;
     }
-    if (_position == null) {
+    if (_selectedLatLng == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Esperá a que se obtenga tu ubicación')));
+          const SnackBar(content: Text('Marcá la ubicación en el mapa')));
       return;
     }
 
@@ -116,9 +95,9 @@ class _CreateSolicitudScreenState extends State<CreateSolicitudScreen> {
         titulo: _tituloController.text.trim(),
         descripcion: _descripcionController.text.trim(),
         categoriaId: _categoriaSeleccionada!.id,
-        latitud: _position!.latitude,
-        longitud: _position!.longitude,
-        fotoPath: _fotoFile?.path,
+        latitud: _selectedLatLng!.latitude,
+        longitud: _selectedLatLng!.longitude,
+        foto: _pickedFoto,
       );
       if (mounted) {
         Navigator.pop(context, true);
@@ -241,8 +220,7 @@ class _CreateSolicitudScreenState extends State<CreateSolicitudScreen> {
                 controller: _descripcionController,
                 maxLines: 3,
                 decoration: const InputDecoration(
-                  hintText:
-                      'Describí el trabajo con más detalle...',
+                  hintText: 'Describí el trabajo con más detalle...',
                   alignLabelWithHint: true,
                 ),
               ),
@@ -263,10 +241,10 @@ class _CreateSolicitudScreenState extends State<CreateSolicitudScreen> {
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppTheme.border),
                   ),
-                  child: _fotoFile != null
+                  child: _fotoBytes != null
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(11),
-                          child: Image.file(_fotoFile!, fit: BoxFit.cover),
+                          child: Image.memory(_fotoBytes!, fit: BoxFit.cover),
                         )
                       : const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -284,44 +262,65 @@ class _CreateSolicitudScreenState extends State<CreateSolicitudScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Ubicación
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: AppTheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.border),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.location_on_outlined,
-                        color: AppTheme.primary, size: 20),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        _loadingGps
-                            ? 'Obteniendo ubicación...'
-                            : _position != null
-                                ? '${_position!.latitude.toStringAsFixed(4)}°, '
-                                    '${_position!.longitude.toStringAsFixed(4)}°'
-                                : 'Ubicación no disponible',
-                        style: textTheme.bodySmall?.copyWith(
-                          color: _position != null
-                              ? AppTheme.textTitle
-                              : AppTheme.textSubtitle,
-                        ),
-                      ),
+              // Ubicación del servicio
+              Text('Ubicación del servicio',
+                  style: textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w700)),
+              const SizedBox(height: 4),
+              Text(
+                'Tocá el mapa para marcar dónde necesitás el servicio',
+                style: textTheme.bodySmall
+                    ?.copyWith(color: AppTheme.textSubtitle),
+              ),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  height: 250,
+                  child: FlutterMap(
+                    options: MapOptions(
+                      initialCenter: const LatLng(-24.7821, -65.4120),
+                      initialZoom: 14.0,
+                      onTap: (tapPosition, latLng) {
+                        setState(() => _selectedLatLng = latLng);
+                      },
                     ),
-                    if (_loadingGps)
-                      const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                    children: [
+                      TileLayer(
+                        urlTemplate:
+                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        userAgentPackageName: 'com.example.chamba',
                       ),
-                  ],
+                      if (_selectedLatLng != null)
+                        MarkerLayer(
+                          markers: [
+                            Marker(
+                              point: _selectedLatLng!,
+                              child: const Icon(
+                                Icons.location_pin,
+                                color: Colors.red,
+                                size: 40,
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
                 ),
               ),
+              if (_selectedLatLng != null) ...[
+                const SizedBox(height: 6),
+                const Row(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.green, size: 16),
+                    SizedBox(width: 4),
+                    Text(
+                      'Ubicación seleccionada ✓',
+                      style: TextStyle(color: Colors.green, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ],
               const SizedBox(height: 32),
 
               // Submit

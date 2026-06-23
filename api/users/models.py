@@ -18,6 +18,7 @@ class Usuario(AbstractUser):
     ubicacion = gis_models.PointField(srid=4326, blank=True, null=True)
     verificado = models.BooleanField(default=False)
     activo = models.BooleanField(default=True)
+    bio = models.TextField(blank=True, null=True)
     fcm_token = models.TextField(blank=True, null=True)
     oficios = models.ManyToManyField(
         'oficios.OficioCategoria',

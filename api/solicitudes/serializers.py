@@ -60,6 +60,7 @@ class SolicitudCreateSerializer(serializers.ModelSerializer):
 class PropuestaSerializer(serializers.ModelSerializer):
     trabajador = UsuarioResumenSerializer(read_only=True)
     solicitud_titulo = serializers.CharField(source='solicitud.titulo', read_only=True)
+    solicitud_estado = serializers.CharField(source='solicitud.estado', read_only=True)
     solicitud_cliente_telefono = serializers.CharField(
         source='solicitud.cliente.telefono', read_only=True
     )
@@ -67,7 +68,8 @@ class PropuestaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Propuesta
         fields = (
-            'id', 'solicitud', 'solicitud_titulo', 'solicitud_cliente_telefono',
+            'id', 'solicitud', 'solicitud_titulo', 'solicitud_estado',
+            'solicitud_cliente_telefono',
             'trabajador', 'precio_estimado', 'mensaje', 'estado', 'created_at',
         )
         read_only_fields = ('estado', 'created_at')

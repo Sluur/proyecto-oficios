@@ -9,8 +9,10 @@ class Usuario extends Equatable {
   final String rol;
   final String? foto;
   final String? telefono;
+  final String? bio;
   final bool verificado;
   final bool activo;
+  final List<int> oficiosIds;
 
   const Usuario({
     required this.id,
@@ -21,11 +23,17 @@ class Usuario extends Equatable {
     required this.rol,
     this.foto,
     this.telefono,
+    this.bio,
     required this.verificado,
     required this.activo,
+    this.oficiosIds = const [],
   });
 
   factory Usuario.fromJson(Map<String, dynamic> json) {
+    final rawOficiosIds = json['oficios_ids'];
+    final oficiosIds = rawOficiosIds is List
+        ? rawOficiosIds.map((e) => e as int).toList()
+        : <int>[];
     return Usuario(
       id: json['id'] as int,
       username: json['username'] as String,
@@ -35,8 +43,10 @@ class Usuario extends Equatable {
       rol: json['rol'] as String,
       foto: json['foto'] as String?,
       telefono: json['telefono'] as String?,
+      bio: json['bio'] as String?,
       verificado: json['verificado'] as bool? ?? false,
       activo: json['activo'] as bool? ?? true,
+      oficiosIds: oficiosIds,
     );
   }
 
@@ -49,8 +59,10 @@ class Usuario extends Equatable {
         'rol': rol,
         'foto': foto,
         'telefono': telefono,
+        'bio': bio,
         'verificado': verificado,
         'activo': activo,
+        'oficios_ids': oficiosIds,
       };
 
   String get nombreCompleto =>
@@ -58,5 +70,5 @@ class Usuario extends Equatable {
 
   @override
   List<Object?> get props =>
-      [id, username, email, firstName, lastName, rol, foto, telefono, verificado, activo];
+      [id, username, email, firstName, lastName, rol, foto, telefono, bio, verificado, activo, oficiosIds];
 }

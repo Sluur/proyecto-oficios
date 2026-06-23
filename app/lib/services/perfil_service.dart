@@ -1,30 +1,34 @@
 import 'package:dio/dio.dart';
+import 'package:image_picker/image_picker.dart';
+import '../models/usuario.dart';
 import 'api_service.dart';
 
 class PerfilService {
   final Dio _dio = ApiService().dio;
 
-  // Requiere PATCH /auth/me/ en el backend (por implementar)
-  Future<void> updatePerfil({
+  Future<Usuario> updatePerfil({
+    String? firstName,
+    String? lastName,
     String? telefono,
-    String? fotoPath,
+    String? bio,
     List<int>? oficiosIds,
   }) async {
     final fields = <String, dynamic>{};
-    if (telefono != null && telefono.isNotEmpty) {
-      fields['telefono'] = telefono;
-    }
-    if (oficiosIds != null) {
-      for (var i = 0; i < oficiosIds.length; i++) {
-        fields['oficios[$i]'] = oficiosIds[i];
-      }
-    }
+    if (firstName != null) fields['first_name'] = firstName;
+    if (lastName != null) fields['last_name'] = lastName;
+    if (telefono != null) fields['telefono'] = telefono;
+    if (bio != null) fields['bio'] = bio;
+    if (oficiosIds != null) fields['oficios_ids'] = oficiosIds;
+    final response = await _dio.patch('/auth/me/', data: fields);
+    return Usuario.fromJson(response.data as Map<String, dynamic>);
+  }
 
-    if (fotoPath != null) {
-      fields['foto'] = await MultipartFile.fromFile(fotoPath);
-      await _dio.patch('/auth/me/', data: FormData.fromMap(fields));
-    } else if (fields.isNotEmpty) {
-      await _dio.patch('/auth/me/', data: fields);
-    }
+  Future<Usuario> updateFoto(XFile foto) async {
+    final bytes = await foto.readAsBytes();
+    final formData = FormData.fromMap({
+      'foto': MultipartFile.fromBytes(bytes, filename: 'foto.jpg'),
+    });
+    final response = await _dio.patch('/auth/me/', data: formData);
+    return Usuario.fromJson(response.data as Map<String, dynamic>);
   }
 }

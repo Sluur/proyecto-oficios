@@ -4,6 +4,7 @@ class Propuesta extends Equatable {
   final int id;
   final int solicitudId;
   final String? solicitudTitulo;
+  final String? solicitudEstado;
   final String? clienteTelefono;
   final int trabajadorId;
   final String trabajadorNombre;
@@ -19,6 +20,7 @@ class Propuesta extends Equatable {
     required this.id,
     required this.solicitudId,
     this.solicitudTitulo,
+    this.solicitudEstado,
     this.clienteTelefono,
     required this.trabajadorId,
     required this.trabajadorNombre,
@@ -61,6 +63,7 @@ class Propuesta extends Equatable {
       id: json['id'] as int,
       solicitudId: solId,
       solicitudTitulo: json['solicitud_titulo'] as String?,
+      solicitudEstado: json['solicitud_estado'] as String?,
       clienteTelefono: json['solicitud_cliente_telefono'] as String?,
       trabajadorId: trabId,
       trabajadorNombre: trabNombre,

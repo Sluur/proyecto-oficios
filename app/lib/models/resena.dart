@@ -41,13 +41,16 @@ class Resena extends Equatable {
       autId = autData as int;
     }
 
+    final destData = json['destinatario'];
+    final destId = destData is Map ? destData['id'] as int : destData as int;
+
     return Resena(
       id: json['id'] as int,
       solicitudId: json['solicitud'] as int,
       autorId: autId,
       autorNombre: autNombre,
       autorFoto: autFoto,
-      destinatarioId: json['destinatario'] as int,
+      destinatarioId: destId,
       puntaje: json['puntaje'] as int,
       comentario: json['comentario'] as String? ?? '',
       createdAt: DateTime.parse(json['created_at'] as String),

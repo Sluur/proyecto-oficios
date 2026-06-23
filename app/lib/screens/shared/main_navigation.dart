@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/usuario.dart';
 import '../cliente/home_screen.dart';
 import '../cliente/mis_solicitudes_screen.dart';
@@ -18,29 +17,24 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
-  bool _checkingOnboarding = true;
-  bool _showOnboarding = false;
+  late bool _showOnboarding;
 
   @override
   void initState() {
     super.initState();
-    _checkOnboarding();
+    _showOnboarding = _needsOnboarding(widget.usuario);
   }
 
-  Future<void> _checkOnboarding() async {
-    if (widget.usuario.rol != 'trabajador') {
-      if (mounted) setState(() => _checkingOnboarding = false);
-      return;
-    }
-    final prefs = await SharedPreferences.getInstance();
-    final done = prefs.getBool('onboarding_done_${widget.usuario.id}') ?? false;
-    if (mounted) {
-      setState(() {
-        _showOnboarding = !done;
-        _checkingOnboarding = false;
-      });
+  @override
+  void didUpdateWidget(MainNavigation oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.usuario != widget.usuario) {
+      setState(() => _showOnboarding = _needsOnboarding(widget.usuario));
     }
   }
+
+  bool _needsOnboarding(Usuario u) =>
+      u.rol == 'trabajador' && u.oficiosIds.isEmpty;
 
   List<Widget> get _screens {
     if (widget.usuario.rol == 'trabajador') {
@@ -98,11 +92,6 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
-    if (_checkingOnboarding) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
     if (_showOnboarding) {
       return OnboardingTrabajadorScreen(
         usuario: widget.usuario,
