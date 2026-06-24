@@ -155,7 +155,6 @@ class _OnboardingTrabajadorScreenState
                     ),
                     const SizedBox(height: 32),
 
-                    // ── Foto de perfil ──────────────────────────
                     Text('Foto de perfil (opcional)',
                         style: textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w700)),
@@ -179,7 +178,6 @@ class _OnboardingTrabajadorScreenState
                     ),
                     const SizedBox(height: 28),
 
-                    // ── Teléfono ─────────────────────────────────
                     Text('Teléfono de contacto',
                         style: textTheme.titleSmall
                             ?.copyWith(fontWeight: FontWeight.w700)),
@@ -194,7 +192,6 @@ class _OnboardingTrabajadorScreenState
                     ),
                     const SizedBox(height: 28),
 
-                    // ── Bio ───────────────────────────────────────
                     Text('Sobre vos',
                         style: textTheme.titleSmall
                             ?.copyWith(fontWeight: FontWeight.w700)),
@@ -210,7 +207,6 @@ class _OnboardingTrabajadorScreenState
                     ),
                     const SizedBox(height: 28),
 
-                    // ── Oficios ───────────────────────────────────
                     Text('¿En qué oficios trabajás?',
                         style: textTheme.titleSmall
                             ?.copyWith(fontWeight: FontWeight.w700)),
@@ -224,7 +220,6 @@ class _OnboardingTrabajadorScreenState
               ),
             ),
 
-            // Chips de oficios
             if (_loadingCats)
               const SliverToBoxAdapter(
                 child: SizedBox(

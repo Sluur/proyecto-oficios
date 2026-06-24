@@ -202,7 +202,6 @@ class _PropuestaCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header: título + estado
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -238,7 +237,6 @@ class _PropuestaCard extends StatelessWidget {
             ),
             const SizedBox(height: 10),
 
-            // Precio y fecha
             Row(
               children: [
                 const Icon(Icons.attach_money,
@@ -273,7 +271,6 @@ class _PropuestaCard extends StatelessWidget {
               ),
             ],
 
-            // Sección inferior para propuestas aceptadas
             if (propuesta.estado == 'aceptada') ...[
               const SizedBox(height: 12),
               const Divider(height: 1),

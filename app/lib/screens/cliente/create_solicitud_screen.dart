@@ -128,7 +128,6 @@ class _CreateSolicitudScreenState extends State<CreateSolicitudScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Categoría
               if (categoriaFija) ...[
                 Text('Categoría',
                     style: textTheme.titleSmall
@@ -194,7 +193,6 @@ class _CreateSolicitudScreenState extends State<CreateSolicitudScreen> {
               ],
               const SizedBox(height: 20),
 
-              // Título
               Text('¿Qué necesitás?',
                   style: textTheme.titleSmall
                       ?.copyWith(fontWeight: FontWeight.w700)),
@@ -211,7 +209,6 @@ class _CreateSolicitudScreenState extends State<CreateSolicitudScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Descripción
               Text('Descripción (opcional)',
                   style: textTheme.titleSmall
                       ?.copyWith(fontWeight: FontWeight.w700)),
@@ -226,7 +223,6 @@ class _CreateSolicitudScreenState extends State<CreateSolicitudScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Foto
               Text('Foto del problema (opcional)',
                   style: textTheme.titleSmall
                       ?.copyWith(fontWeight: FontWeight.w700)),
@@ -262,7 +258,6 @@ class _CreateSolicitudScreenState extends State<CreateSolicitudScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Ubicación del servicio
               Text('Ubicación del servicio',
                   style: textTheme.titleSmall
                       ?.copyWith(fontWeight: FontWeight.w700)),
@@ -323,7 +318,6 @@ class _CreateSolicitudScreenState extends State<CreateSolicitudScreen> {
               ],
               const SizedBox(height: 32),
 
-              // Submit
               SizedBox(
                 width: double.infinity,
                 child: _saving

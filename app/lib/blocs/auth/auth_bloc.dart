@@ -106,7 +106,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           return detail;
         }
 
-        // Errores campo por campo de DRF
         final messages = <String>[];
         data.forEach((key, value) {
           final label = _fieldLabel(key.toString());

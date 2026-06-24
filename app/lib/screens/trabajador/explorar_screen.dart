@@ -157,7 +157,6 @@ class _ExplorarScreenState extends State<ExplorarScreen> with RouteAware {
         color: AppTheme.primary,
         child: CustomScrollView(
           slivers: [
-            // Filtros por categoría
             if (_misCategorias.isNotEmpty)
               SliverToBoxAdapter(
                 child: SizedBox(
@@ -188,7 +187,6 @@ class _ExplorarScreenState extends State<ExplorarScreen> with RouteAware {
                 ),
               ),
 
-            // Lista
             if (_loading)
               const SliverFillRemaining(
                 child: Center(child: CircularProgressIndicator()),
@@ -335,7 +333,6 @@ class _SolicitudFeedCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Categoría
                     Row(
                       children: [
                         if (solicitud.categoriaNombre != null)
@@ -357,7 +354,6 @@ class _SolicitudFeedCard extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 6),
-                    // Título
                     Text(
                       solicitud.titulo,
                       style: textTheme.titleSmall?.copyWith(
@@ -378,7 +374,6 @@ class _SolicitudFeedCard extends StatelessWidget {
                       ),
                     ],
                     const SizedBox(height: 8),
-                    // Meta
                     Wrap(
                       spacing: 10,
                       children: [

@@ -319,13 +319,11 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
               ),
             ],
 
-            // Mapa de ubicación
             if (_solicitud.latitud != null && _solicitud.longitud != null) ...[
               const SizedBox(height: 20),
               _buildMapa(),
             ],
 
-            // Datos de contacto cuando hay trabajo en progreso o cerrado
             if (_solicitud.estado != 'abierta' &&
                 _solicitud.trabajadorAceptadoId != null) ...[
               const SizedBox(height: 20),
@@ -345,7 +343,6 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
               ),
             ],
 
-            // Lista de propuestas para el cliente dueño
             if (_esClienteDueno && _solicitud.estado == 'abierta') ...[
               const SizedBox(height: 24),
               Text(

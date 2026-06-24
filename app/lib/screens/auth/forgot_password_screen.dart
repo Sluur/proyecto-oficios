@@ -42,7 +42,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                // Lógica para enviar el correo
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Enlace enviado si el correo existe')),
                 );

@@ -125,7 +125,6 @@ class _PerfilTrabajadorScreenState extends State<PerfilTrabajadorScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Rating
                   Center(
                     child: StarRating(
                       rating: t.promedioPuntaje ?? 0,
@@ -142,7 +141,6 @@ class _PerfilTrabajadorScreenState extends State<PerfilTrabajadorScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Oficios
                   if (t.oficios.isNotEmpty) ...[
                     Text('Servicios',
                         style: textTheme.titleSmall
@@ -168,7 +166,6 @@ class _PerfilTrabajadorScreenState extends State<PerfilTrabajadorScreen> {
                     const SizedBox(height: 20),
                   ],
 
-                  // Teléfono
                   if (t.telefono != null) ...[
                     Row(
                       children: [
@@ -183,7 +180,6 @@ class _PerfilTrabajadorScreenState extends State<PerfilTrabajadorScreen> {
                     const SizedBox(height: 20),
                   ],
 
-                  // Reseñas
                   if (_resenas.isNotEmpty) ...[
                     Text('Reseñas de clientes',
                         style: textTheme.titleSmall

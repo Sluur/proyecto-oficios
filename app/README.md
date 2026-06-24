@@ -1,17 +1,19 @@
-# app
+# Chamba — App móvil
 
-A new Flutter project.
+Marketplace de oficios y servicios de cercanía. Conecta clientes que necesitan trabajos del hogar con trabajadores independientes (plomeros, electricistas, fleteros, etc.) mediante geolocalización y un sistema de reputación con reseñas.
 
-## Getting Started
+**Trabajo Final — Introducción al Desarrollo Móvil 2026**
 
-This project is a starting point for a Flutter application.
+## Stack
 
-A few resources to get you started if this is your first Flutter project:
+- Flutter + flutter_bloc
+- Backend Django REST + GeoDjango + PostGIS
+- Mapas OpenStreetMap (flutter_map)
+- Auth JWT (SimpleJWT)
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Desarrollo
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter pub get
+flutter run
+```

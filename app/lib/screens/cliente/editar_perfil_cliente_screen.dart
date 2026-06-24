@@ -121,7 +121,6 @@ class _EditarPerfilClienteScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Foto
             Center(
               child: GestureDetector(
                 onTap: _pickFoto,
@@ -158,7 +157,6 @@ class _EditarPerfilClienteScreenState
             ),
             const SizedBox(height: 32),
 
-            // Nombre
             _label(textTheme, 'Nombre'),
             const SizedBox(height: 8),
             TextField(
@@ -171,7 +169,6 @@ class _EditarPerfilClienteScreenState
             ),
             const SizedBox(height: 16),
 
-            // Apellido
             _label(textTheme, 'Apellido'),
             const SizedBox(height: 8),
             TextField(
@@ -184,7 +181,6 @@ class _EditarPerfilClienteScreenState
             ),
             const SizedBox(height: 16),
 
-            // Teléfono
             _label(textTheme, 'Teléfono'),
             const SizedBox(height: 8),
             TextField(

@@ -129,7 +129,6 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
         color: AppTheme.primary,
         child: CustomScrollView(
           slivers: [
-            // ── Header ──────────────────────────────────────────────
             SliverAppBar(
               expandedHeight: 148,
               pinned: true,
@@ -202,7 +201,6 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Buscador ──────────────────────────────────────
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                     child: TextField(
@@ -225,7 +223,6 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                     ),
                   ),
 
-                  // ── CTA ─────────────────────────────────────────
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                     child: _CtaButton(onTap: () {
@@ -237,7 +234,6 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                     }),
                   ),
 
-                  // ── Categorías ──────────────────────────────────
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 32, 20, 0),
                     child: _SectionHeader(
@@ -255,7 +251,6 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                   const SizedBox(height: 14),
                   _buildCategoriasGrid(),
 
-                  // ── Solicitudes activas ─────────────────────────
                   if (_solicitudesActivas.isNotEmpty) ...[
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20, 32, 20, 14),

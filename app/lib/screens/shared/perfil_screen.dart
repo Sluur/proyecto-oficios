@@ -37,7 +37,6 @@ class PerfilScreen extends StatelessWidget {
                 children: [
                   const SizedBox(height: 8),
 
-                  // Avatar
                   CircleAvatar(
                     radius: 52,
                     backgroundColor:
@@ -60,7 +59,6 @@ class PerfilScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  // Nombre
                   Text(
                     usuario.nombreCompleto,
                     style: textTheme.titleLarge?.copyWith(
@@ -71,7 +69,6 @@ class PerfilScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
 
-                  // Username / email
                   Text(
                     usuario.email,
                     style: textTheme.bodyMedium
@@ -79,7 +76,6 @@ class PerfilScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
 
-                  // Rol chip
                   Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 14, vertical: 6),
@@ -97,7 +93,6 @@ class PerfilScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  // Bio (solo trabajador)
                   if (usuario.rol == 'trabajador' &&
                       usuario.bio != null &&
                       usuario.bio!.isNotEmpty) ...[
@@ -119,7 +114,6 @@ class PerfilScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                   ],
 
-                  // Info chips
                   if (usuario.telefono != null &&
                       usuario.telefono!.isNotEmpty) ...[
                     _InfoRow(
@@ -138,7 +132,6 @@ class PerfilScreen extends StatelessWidget {
                   ],
                   const SizedBox(height: 24),
 
-                  // Editar perfil
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
@@ -155,7 +148,6 @@ class PerfilScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  // Cerrar sesión
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton.tonal(
